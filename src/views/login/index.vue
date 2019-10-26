@@ -5,12 +5,12 @@
       <!-- logo -->
       <img src="../../assets/logo_index.png" width="200px" />
       <!-- 表单 -->
-      <el-form ref="form" :model="loginFrom">
-        <el-form-item>
-          <el-input v-model="loginFrom.mobile" placeholder="请输入手机号" style="width:345px"></el-input>
+      <el-form ref="form" :model="loginForm" :rules="loginRules">
+        <el-form-item prop='mobile'>
+          <el-input v-model="loginForm.mobile" placeholder="请输入手机号" style="width:345px"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="loginFrom.code" placeholder="请输入验证码" style="width:225px;margin-right:10px"></el-input>
+        <el-form-item prop='code'>
+          <el-input v-model="loginForm.code" placeholder="请输入验证码" style="width:225px;margin-right:10px"></el-input>
           <el-button>发送验证码</el-button>
         </el-form-item>
         <el-form-item>
@@ -27,10 +27,23 @@
 <script>
 export default {
   data () {
+    // 校验手机号的函数
     return {
-      loginFrom: {
+      loginForm: {
         mobile: '',
         code: ''
+      },
+      //  校验规则
+      loginRules: {
+        mobile: [
+          // type: date|email|url 支持 不支持手机号
+          { required: true, message: '请输入手机号', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入验证码', trigger: 'blur' },
+          { len: 6, message: '验证码6个字符', trigger: 'blur' }
+        ]
+
       }
     }
   }

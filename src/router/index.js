@@ -2,7 +2,9 @@
 import VueRouter from 'vue-router'
 import Vue from 'vue'
 import Login from '@/views/login'
-import home from '@/views/home'
+import Home from '@/views/home'
+import Welcome from '@/views/welcome'
+import NotFound from '@/views/404'
 
 // 使用
 Vue.use(VueRouter)
@@ -17,7 +19,18 @@ const router = new VueRouter({
     },
     {
       path: '/',
-      component: home
+      component: Home,
+      children: [
+        // 欢迎页面
+        {
+          path: '',
+          component: Welcome
+        }
+      ]
+    },
+    {
+      path: '*',
+      component: NotFound
     }
   ]
 })

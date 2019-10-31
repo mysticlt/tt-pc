@@ -31,7 +31,7 @@ const router = new VueRouter({
         },
         {
           path: 'article',
-          comment: Article
+          component: Article
         }
       ]
     },
@@ -39,6 +39,7 @@ const router = new VueRouter({
       path: '*',
       component: NotFound
     }
+
   ]
 })
 

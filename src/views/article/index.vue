@@ -1,0 +1,132 @@
+<template>
+  <div class="container-article">
+    <!-- 筛选添加布局 -->
+    <el-card>
+      <div slot="header">
+        <my-bread>内容管理</my-bread>
+      </div>
+      <!-- 表单 -->
+      <el-form label-width="80px" size="small">
+        <el-form-item label="状态:">
+          <el-radio-group v-model="reqParams.status">
+            <el-radio :label="null">全部</el-radio>
+            <el-radio :label="0">草稿</el-radio>
+            <el-radio :label="1">待审核</el-radio>
+            <el-radio :label="2">审核通过</el-radio>
+            <el-radio :label="3">审核失败</el-radio>
+            <el-radio :label="4">已删除</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="频道:">
+          <el-select v-model="reqParams.channel_id" placeholder="请选择">
+            <el-option
+              v-for="item in channelOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="日期:">
+          <!-- v-model 绑定的数组 [起始时间，结束时间] -->
+          <div class="block">
+            <span class="demonstration"></span>
+            <el-date-picker
+              v-model="dateArr"
+              type="daterange"
+              range-separator="至"
+              start-placeholder="开始月份"
+              end-placeholder="结束月份"
+            ></el-date-picker>
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary">筛选</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <!-- 筛选结果布局 -->
+    <el-card style="margin-top:20px">
+      <div slot="header">
+        <span>根据筛选条件共查询到 0 条结果</span>
+      </div>
+      <!-- 表格 -->
+      <el-table :data="articles">
+        <el-table-column label="封面">
+          <template slot-scope="scope">
+            <!-- 第一张封面图 -->
+            <el-image :src="scope.row.cover.images[0]" fit="fill" style="width:150px;height:100px">
+              <div slot="error" class="image-slot">
+                <img src="../../assets/error.gif" width="150" height="100">
+              </div>
+            </el-image>
+          </template>
+        </el-table-column>
+        <el-table-column label="标题" prop="title"></el-table-column>
+        <el-table-column label="状态" prop="status"></el-table-column>
+        <el-table-column label="发布时间" prop="pubdate"></el-table-column>
+        <el-table-column label="操作"></el-table-column>
+      </el-table>
+      <!-- 分页 -->
+      <el-pagination
+        style="margin-top:20px"
+        background
+        layout="prev, pager, next"
+        :total="1000">
+      </el-pagination>
+    </el-card>
+
+  </div>
+</template>
+
+<script>
+
+export default {
+
+  data () {
+    return {
+      // 筛选
+      // 使用axios提交数据时，如果数据的值为null是不会提交该字段
+      reqParams: {
+        status: null,
+        channel_id: null,
+        begin_pubdate: null,
+        end_pubdate: null,
+        // 当前页码 每一页显示条数
+        page: 1,
+        per_page: 20
+      },
+      // 频道选项数据
+      channelOptions: [{ value: 1, label: 'java' }, { value: 2, label: '前端' }],
+      // 日期数组
+      dateArr: [],
+      // 文章列表
+      articles: []
+    }
+  },
+  created () {
+    this.getChannelOptions()
+    this.getArticles()
+  },
+  methods: {
+    // 频道选项数据
+    async getChannelOptions () {
+      const { data: { data } } = await this.$http.get('channels')
+      // 赋值频道下拉选项依赖数据
+      this.channelOptions = data.channels
+    },
+    // 获取文章列表数据
+    async getArticles () {
+      // axios.get(url?key=value&&key1=value1...) get传参
+      // axios.get(url,{params:参数对象})
+      const { data: { data } } = await this.$http.get('articles', { params: this.reqParams })
+      // 赋值文章列表依赖数据
+      this.articles = data.results
+    }
+  }
+
+}
+</script>
+
+<style>
+</style>

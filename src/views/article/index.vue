@@ -81,11 +81,19 @@
         </el-table-column>
       </el-table>
       <!-- 分页 -->
+      <!-- total 是总条数 默认显示10条每一页 -->
+      <!-- 动态激活当前的页码对应的按钮 -->
+      <!-- current-page 动态激活当前的页码对应的按钮 -->
+      <!-- current-change 事件: 当页码改变(电机页码按钮,上一页,下一页)就执行 参数当前改变后的页码 -->
       <el-pagination
         style="margin-top:20px"
         background
         layout="prev, pager, next"
-        :total="1000">
+        :page-size="reqParams.per_page"
+        :current-page="reqParams.page"
+        :total="total"
+        @current-change="pager"
+        >
       </el-pagination>
     </el-card>
 
@@ -114,7 +122,9 @@ export default {
       // 日期数组
       dateArr: [],
       // 文章列表
-      articles: []
+      articles: [],
+      // 文章总条数
+      total: 0
     }
   },
   created () {
@@ -135,9 +145,16 @@ export default {
       const { data: { data } } = await this.$http.get('articles', { params: this.reqParams })
       // 赋值文章列表依赖数据
       this.articles = data.results
+      // 赋值文章总条数依赖数据
+      this.total = data.total_count
+    },
+    // 分页功能
+    pager (newPage) {
+    // 根据新的页码和当前的筛选条件 重新查询数据即可
+      this.reqParams.page = newPage
+      this.getArticles()
     }
   }
-
 }
 </script>
 

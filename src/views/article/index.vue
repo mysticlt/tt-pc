@@ -18,7 +18,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道:">
-          <el-select v-model="reqParams.channel_id" placeholder="请选择">
+          <el-select v-model="reqParams.channel_id" placeholder="请选择" clearable>
             <el-option
               v-for="item in channelOptions"
               :key="item.id"
@@ -76,8 +76,8 @@
         </el-table-column>
         <el-table-column label="发布时间" prop="pubdate"></el-table-column>
         <el-table-column label="操作" width="120">
-          <template>
-            <el-button type="primary" icon="el-icon-edit" plain circle></el-button>
+          <template slot-scope="scope">
+            <el-button @click="toEdit(scope.row.id)" type="primary" icon="el-icon-edit" plain circle></el-button>
             <el-button type="danger" icon="el-icon-delete" plain circle></el-button>
           </template>
         </el-table-column>
@@ -179,6 +179,11 @@ export default {
       // 回到第一页
       this.reqParams.page = 1
       this.getArticles()
+    },
+    // 编辑
+    toEdit (id) {
+      // this.$router.push('publish?id='+id)
+      this.$router.push({ path: '/publish', query: { id } })
     }
   }
 }

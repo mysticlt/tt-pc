@@ -37,18 +37,20 @@
               range-separator="至"
               start-placeholder="开始月份"
               end-placeholder="结束月份"
+              @change="changeDate"
+              value-format="yyyy-MM-dd"
             ></el-date-picker>
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">筛选</el-button>
+          <el-button type="primary" @click="search">筛选</el-button>
         </el-form-item>
       </el-form>
     </el-card>
     <!-- 筛选结果布局 -->
     <el-card style="margin-top:20px">
       <div slot="header">
-        <span>根据筛选条件共查询到 0 条结果</span>
+        <span>根据筛选条件共查询到 {{total}} 条结果</span>
       </div>
       <!-- 表格 -->
       <el-table :data="articles">
@@ -152,6 +154,30 @@ export default {
     pager (newPage) {
     // 根据新的页码和当前的筛选条件 重新查询数据即可
       this.reqParams.page = newPage
+      this.getArticles()
+    },
+    // 选择日期触发的事件函数
+    changeDate (dateArr) {
+      // dateArr 的数据格式: [date,date]
+      // 后端需要的是 字符串格式： dateArr 数据格式： [string,string]
+      // 注意：清除选择的日期后 dateArr的值 null
+      // console.log(dateArr)
+      if (dateArr) {
+        this.reqParams.begin_pubdate = dateArr[0]
+        this.reqParams.end_pubdate = dateArr[1]
+      } else {
+        this.reqParams.begin_pubdate = null
+        this.reqParams.end_pubdate = null
+      }
+    },
+    // 筛选查询
+    search () {
+      // 准备日期数据
+      // 进行数据获取
+      // 如果频道的值''时候 修改为null
+      if (this.reqParams.channel_id === '') this.reqParams.channel_id = null
+      // 回到第一页
+      this.reqParams.page = 1
       this.getArticles()
     }
   }

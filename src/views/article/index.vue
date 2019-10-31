@@ -78,7 +78,7 @@
         <el-table-column label="操作" width="120">
           <template slot-scope="scope">
             <el-button @click="toEdit(scope.row.id)" type="primary" icon="el-icon-edit" plain circle></el-button>
-            <el-button type="danger" icon="el-icon-delete" plain circle></el-button>
+            <el-button @click="del(scope.row.id)" type="danger" icon="el-icon-delete" plain circle></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -184,6 +184,15 @@ export default {
     toEdit (id) {
       // this.$router.push('publish?id='+id)
       this.$router.push({ path: '/publish', query: { id } })
+    },
+    // 删除
+    async del (id) {
+      // 请求
+      await this.$http.delete(`articles/${id}`)
+      // 提示
+      this.$message.success('删除文章成功')
+      // 更新列表
+      this.getArticles()
     }
   }
 }

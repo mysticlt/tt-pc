@@ -19,7 +19,7 @@
             <img :src="item.url" />
             <div class="footer" v-if="!reqParams.collect">
               <span @click="toggleStatus(item)" class="el-icon-star-off" :class="{red:item.is_collected}"></span>
-              <span class="el-icon-delete"></span>
+              <span @click="deleteImage(item.id)" class="el-icon-delete"></span>
             </div>
           </div>
         </div>
@@ -83,6 +83,23 @@ export default {
       item.is_collected = data.collect
       // 提示
       this.$message.success((data.collect ? '添加收藏' : '取消收藏') + '成功')
+    },
+    // 删除素材
+    deleteImage (id) {
+      this.$confirm('此操作将永久删除该图片，是否继续?', '温馨提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        // 点击了确认
+        await this.$http.delete(`user/images/${id}`)
+        // 删除成功
+        this.$message.success('删除成功')
+        // 更新列表
+        this.getImages()
+      }).catch(() => {
+        // 点击了取消
+      })
     }
   }
 }

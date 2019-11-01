@@ -12,26 +12,47 @@
           <el-radio-button :label="true">收藏</el-radio-button>
         </el-radio-group>
         <!-- 绿色按钮 -->
-        <el-button style="float:right" type="success" size="small">添加素材</el-button>
+        <el-button @click="dialogVisible=true" style="float:right" type="success" size="small">添加素材</el-button>
         <!-- 素材列表 -->
         <div class="img_list">
           <div class="img_item" v-for="item in images" :key="item.id">
             <img :src="item.url" />
             <div class="footer" v-if="!reqParams.collect">
-              <span @click="toggleStatus(item)" class="el-icon-star-off" :class="{red:item.is_collected}"></span>
+              <span
+                @click="toggleStatus(item)"
+                class="el-icon-star-off"
+                :class="{red:item.is_collected}"
+              ></span>
               <span @click="deleteImage(item.id)" class="el-icon-delete"></span>
             </div>
           </div>
         </div>
         <!-- 分页 -->
-        <el-pagination background layout="prev, pager, next"
-        :total="total"
-        :page-size="reqParams.per_page"
-        :current-page="reqParams.page"
-        @current-change="pager"
+        <el-pagination
+          background
+          layout="prev, pager, next"
+          :total="total"
+          :page-size="reqParams.per_page"
+          :current-page="reqParams.page"
+          @current-change="pager"
         ></el-pagination>
       </div>
     </el-card>
+    <!-- 对话框 -->
+    <el-dialog title="提示" :visible.sync="dialogVisible" width="300px">
+      <span>
+        <el-upload
+          class="avatar-uploader"
+          action="https://jsonplaceholder.typicode.com/posts/"
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+        >
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -48,7 +69,11 @@ export default {
       // 素材列表
       images: [],
       // 总条数
-      total: 0
+      total: 0,
+      // 对话框显示隐藏
+      dialogVisible: false,
+      // 上传成功后的图片地址
+      imageUrl: null
     }
   },
   created () {
@@ -76,7 +101,9 @@ export default {
     // 添加收藏与取消收藏
     async toggleStatus (item) {
       // 修改请求
-      const { data: { data } } = await this.$http.put(`user/images/${item.id}`, {
+      const {
+        data: { data }
+      } = await this.$http.put(`user/images/${item.id}`, {
         collect: !item.is_collected
       })
       // 成功后 修改样式
@@ -90,16 +117,34 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(async () => {
-        // 点击了确认
-        await this.$http.delete(`user/images/${id}`)
-        // 删除成功
-        this.$message.success('删除成功')
-        // 更新列表
-        this.getImages()
-      }).catch(() => {
-        // 点击了取消
       })
+        .then(async () => {
+          // 点击了确认
+          await this.$http.delete(`user/images/${id}`)
+          // 删除成功
+          this.$message.success('删除成功')
+          // 更新列表
+          this.getImages()
+        })
+        .catch(() => {
+          // 点击了取消
+        })
+    },
+    // 添加素材
+    handleAvatarSuccess (res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw)
+    },
+    beforeAvatarUpload (file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
     }
   }
 }

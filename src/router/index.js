@@ -9,6 +9,7 @@ import Welcome from '@/views/welcome'
 import NotFound from '@/views/404'
 import Article from '@/views/article'
 import Image from '@/views/image'
+import Publish from '@/views/publish'
 
 // 使用
 Vue.use(VueRouter)
@@ -39,6 +40,11 @@ const router = new VueRouter({
         {
           path: 'image',
           component: Image
+        },
+        // 发布文章
+        {
+          path: 'publish',
+          component: Publish
         }
       ]
     },

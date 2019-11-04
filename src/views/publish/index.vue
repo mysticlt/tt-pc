@@ -13,15 +13,20 @@
           <quill-editor v-model="articleForm.content" :options="editorOption"></quill-editor>
         </el-form-item>
         <el-form-item label="封面">
-          <el-radio-group v-model="articleForm.cover.type">
+          <el-radio-group v-model="articleForm.cover.type" @change="articleForm.cover.images=[]">
             <el-radio :label="1">单图</el-radio>
             <el-radio :label="3">三图</el-radio>
             <el-radio :label="0">无图</el-radio>
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
           <!-- 封面图组件 -->
-          <div>
+          <!-- 单图 -->
+          <div v-if="articleForm.cover.type === 1">
             <my-image v-model="articleForm.cover.images[0]"></my-image>
+          </div>
+          <!-- 多图 -->
+           <div v-if="articleForm.cover.type === 3">
+            <my-image v-for="i in 3" :key="i" v-model="articleForm.cover.images[i-1]"></my-image>
           </div>
         </el-form-item>
         <el-form-item label="频道">

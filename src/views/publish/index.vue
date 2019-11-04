@@ -33,8 +33,8 @@
           <my-channel v-model="articleForm.channel_id"></my-channel>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">发表</el-button>
-          <el-button>存入草稿</el-button>
+          <el-button type="primary" @click="create(false)">发表</el-button>
+          <el-button @click="create(true)">存入草稿</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -77,7 +77,18 @@ export default {
         }
       }
     }
+  },
+  methods: {
+    async create (draft) {
+    // 发表 存入草稿
+      await this.$http.post(`articles?draft=${draft}`, this.articleForm)
+      // 提示
+      this.$message.success(draft ? '存入草稿成功' : '发表成功')
+      // 去内容管理
+      this.$router.push('/article')
+    }
   }
+
 }
 </script>
 

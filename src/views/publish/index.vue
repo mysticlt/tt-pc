@@ -60,12 +60,12 @@ export default {
       // 提交的数据
       articleForm: {
         title: null,
+        content: null,
         cover: {
           type: 1,
           images: []
         },
-        channel_id: null,
-        content: null
+        channel_id: null
       },
       //   富文本的配置对象
       editorOption: {
@@ -83,15 +83,40 @@ export default {
       }
     }
   },
-  created () {
-    // 判断当前是否是编辑
-    const articleId = this.$route.query.id
-    if (articleId) {
-      // 获取当前文章的信息
-      this.getArticle(articleId)
+  // 当路由的规则没有发生改变的时候，组件是不会重新初始化的
+  // 只有组件初始化的时候才会只执行一次
+  // 监听地址栏参数变化，执行下面代码
+  watch: {
+    // data = {a:{b:10}} 'a.b':function(){}
+    // （只要是this能够获取到的数据）数据字段名称:function(newVal,oldVal){ //当数据改变就会执行 }
+    '$route.query.id': function () {
+      this.toggleArticleStatus()
     }
   },
+  created () {
+    this.toggleArticleStatus()
+  },
   methods: {
+    // 切换发布与修改
+    toggleArticleStatus () {
+    // 判断当前是否是编辑
+      const articleId = this.$route.query.id
+      if (articleId) {
+      // 获取当前文章信息
+        this.getArticle(articleId)
+      } else {
+      // 重置数据不能为空对象  模版中 articleForm.cover.images
+        this.articleForm = {
+          title: null,
+          content: null,
+          cover: {
+            type: 1,
+            images: []
+          },
+          channel_id: null
+        }
+      }
+    },
     // 获取文章信息
     async getArticle (id) {
       const {
@@ -114,7 +139,7 @@ export default {
       // 修改 存入草稿
       await this.$http.put(`articles/${this.articleForm.id}?draft=${draft}`, this.articleForm)
       // 提示
-      this.$message.success(draft ? '存入草稿成功' : '发表成功')
+      this.$message.success(draft ? '存入草稿成功' : '修改成功')
       // 去内容管理
       this.$router.push('/article')
     }

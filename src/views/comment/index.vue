@@ -10,15 +10,13 @@
         <el-table-column label="总评论数" prop="total_comment_count"></el-table-column>
         <el-table-column label="粉丝评论数" prop="fans_comment_count"></el-table-column>
         <el-table-column label="状态">
-            <template slot-scope="scope">
-                {{scope.row.comment_status?"正常":"关闭"}}
-            </template>
+          <template slot-scope="scope">{{scope.row.comment_status?"正常":"关闭"}}</template>
         </el-table-column>
         <el-table-column label="操作">
-            <template slot-scope="scope">
-                <el-button v-if="scope.row.comment_status" type="success" size="small">打开评论</el-button>
-                <el-button v-else type="danger" size="small">关闭评论</el-button>
-            </template>
+          <template slot-scope="scope">
+            <el-button  @click="toggleStatus(scope.row.id,false)" v-if="scope.row.comment_status" type="danger" size="small">关闭评论</el-button>
+            <el-button  @click="toggleStatus(scope.row.id,true)" v-else type="success" size="small">打开评论</el-button>
+          </template>
         </el-table-column>
       </el-table>
       <!-- 分页 -->
@@ -52,9 +50,30 @@ export default {
     this.getArticles()
   },
   methods: {
+    // 切换打开与关闭
+    toggleStatus (id, status) {
+      const text = status ? '您确认要打开评论吗？' : '您确认关闭评论吗？如果关闭，用户将无法对该文章进行评论'
+      this.$confirm(text, '温馨提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        // 确认时
+        const { data: { data } } = await this.$http.put(`comments/status?article_id=${id}`, {
+          allow_comment: status
+        })
+        // 提示
+        this.$message.success(data.allow_comment ? '打开评论成功' : '关闭评论成功')
+        // 更新当前列表
+        this.getArticles()
+      }).catch(() => {})
+    },
+    // 获取文章列表
     async getArticles () {
       // 注意: 获取文章列表，但是需要包含评论相关信息
-      const { data: { data } } = await this.$http.get('articles', { params: this.reqParams })
+      const {
+        data: { data }
+      } = await this.$http.get('articles', { params: this.reqParams })
       // 渲染
       this.articles = data.results
       // 总条数
@@ -65,7 +84,6 @@ export default {
       this.getArticles()
     }
   }
-
 }
 </script>
 
